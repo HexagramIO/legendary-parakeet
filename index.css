@@ -1,3 +1,350 @@
+@import url("https://use.typekit.net/ifm5sje.css");
+
+:root {
+  --fontFamily:
+    "avenir-next-lt-pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+
+  /* Steel — the comp's fill for UPLOAD FILE and for a selected YES/NO.
+     Ashby derives the submit button from 600 and the selected toggle from 900,
+     so both land on steel, matching .btn on the site. NOTE: these two are also
+     settable in Admin → Job Boards → Theme; if you set them there, delete them
+     here rather than keeping two sources of truth. */
+  --colorPrimary600: #a8a8a8;
+  --colorPrimary900: #a8a8a8;
+
+  /* The comp's page grey. */
+  --colorAppBackground: #dedede;
+
+  /* The comp is square throughout; Ashby ships 25px pills and 10px inputs. */
+  --borderRadiusButton: 0;
+  --borderRadiusControl: 0;
+  --borderRadiusContainer: 0;
+
+  --borderWidthBold: 1px;
+  --widthMaxJobBoard: 1180px;
+}
+
+/* ── Shell ───────────────────────────────────────────────────────────────── */
+
 body {
-  background: red !important;
+  background: #dedede;
+}
+
+.ashby-application-form-container {
+  background: #dedede !important;
+  box-shadow: none !important;
+  padding: 40px 0 !important;
+  font-size: 16px !important;
+  color: #395356 !important; /* site ink */
+}
+
+/* ── Two-column layout ───────────────────────────────────────────────────────
+   The comp pairs Name|Email and Phone|LinkedIn, runs Resume full-bleed, pairs
+   the first two Yes/No questions and lets the third span.
+
+   WARNING: the spans below are positional (nth-child). They assume today's
+   question order — Name, Email, Resume, Phone, LinkedIn, then the three Yes/No
+   questions. Add, remove or reorder a question in Ashby and the pairing
+   reshuffles silently. Re-check this block after any change to the posting's
+   application form. */
+
+.ashby-application-form-section-container {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+  align-items: start;
+  margin-bottom: 32px !important;
+}
+
+.ashby-application-form-section-header {
+  grid-column: 1 / -1;
+}
+
+/* Resume upload, and the third Yes/No, run the full width. */
+.ashby-application-form-section-container
+  > .ashby-application-form-field-entry:nth-child(3),
+.ashby-application-form-section-container
+  > .ashby-application-form-field-entry:nth-child(8) {
+  grid-column: 1 / -1;
+}
+
+/* ── Section headings ────────────────────────────────────────────────────────
+   Ashby has no separate title element here: the heading lives as a <strong> in
+   the first paragraph of the section description, followed on the same line by
+   the "(Completion is voluntary…)" note. display:block breaks it onto its own
+   line, as drawn.
+
+   The comp italicises that parenthetical. It is a bare text node with no
+   element around it, so it cannot be targeted — italicising the whole
+   paragraph and reverting the <strong> would work here, but would wrongly
+   italicise "Form CC-305, OMB Control Number…" in the disability section,
+   which shares this structure. Left upright deliberately. */
+
+.ashby-application-form-section-header-description strong:first-child {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #2b292a; /* site charcoal */
+}
+
+.ashby-application-form-section-header-description {
+  color: #395356 !important;
+  line-height: 1.6 !important;
+}
+
+.ashby-application-form-section-header-description p {
+  margin: 0 0 4px;
+}
+
+/* Ashby's rich text emits empty <p> elements as paragraph spacing; the comp
+   sets its rhythm with margins instead. */
+.ashby-application-form-section-header-description p:empty {
+  display: none;
+}
+
+.ashby-application-form-section-header-description li {
+  margin-bottom: 4px;
+  line-height: 1.6;
+}
+
+/* The injected "APPLICATION" heading. The first section has no title of its
+   own — the comp shows one, so it is supplied here. Content in CSS is a
+   presentational label only; it carries no semantics and won't be translated.
+
+   Selected by ABSENCE of a section header rather than by position: the EEO,
+   veteran and disability sections all carry their own heading, and every
+   section container is a :first-child of its own wrapper, so a positional
+   selector stamps "Application" onto all four. */
+.ashby-application-form-section-container:not(
+    :has(.ashby-application-form-section-header)
+  )::before {
+  content: "Application";
+  grid-column: 1 / -1;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #2b292a;
+}
+
+/* ── Field labels ────────────────────────────────────────────────────────── */
+
+.ashby-application-form-question-title {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #2b292a !important;
+  margin-bottom: 6px !important;
+}
+
+.ashby-application-form-question-description,
+.ashby-application-form-texting-consent-description {
+  font-size: 13px !important;
+  color: #395356 !important;
+}
+
+/* ── Text inputs ─────────────────────────────────────────────────────────────
+   No documented hook exists for the input itself; these are element selectors
+   scoped to the form. Ashby's own rule sets height:40px, which the comp
+   matches, so only fill, border and type are restated. */
+
+.ashby-application-form-container input[type="text"],
+.ashby-application-form-container input[type="email"],
+.ashby-application-form-container input[type="tel"],
+.ashby-application-form-container input[type="url"],
+.ashby-application-form-container input[type="number"],
+.ashby-application-form-container textarea {
+  background: #ededed !important;
+  border: 1px solid #b3b3b3 !important;
+  border-radius: 0 !important;
+  color: #2b292a !important;
+  font-size: 14px !important;
+  letter-spacing: 0.04em;
+  padding: 10px 14px !important;
+}
+
+.ashby-application-form-container input:focus,
+.ashby-application-form-container textarea:focus {
+  border-color: #009bc7 !important; /* site cyan-deep */
+  outline: none !important;
+}
+
+/* The comp shows the field name in the box. Ashby's placeholder is "Type
+   here…", so this only sets the treatment — see the header note on why the
+   label is not moved inside. */
+.ashby-application-form-container ::placeholder {
+  color: #8a8a8a !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 13px;
+}
+
+/* ── Upload blocks (autofill pane + resume) ──────────────────────────────────
+   Drawn in the comp as a bordered strip: label left, filled UPLOAD FILE button
+   hard right. */
+
+.ashby-application-form-autofill-input-root,
+.ashby-application-form-autofill-uploader,
+.ashby-application-form-container [role="presentation"] {
+  background: #ededed !important;
+  border: 1px solid #b3b3b3 !important;
+  border-radius: 0 !important;
+  padding: 14px 16px !important;
+}
+
+/* The comp puts UPLOAD FILE hard right in its strip; Ashby centres it. */
+.ashby-application-form-container [role="presentation"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.ashby-application-form-autofill-input-title {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #2b292a !important;
+}
+
+.ashby-application-form-autofill-input-description {
+  font-size: 13px !important;
+  color: #395356 !important;
+}
+
+/* Ashby's upload button is an OUTLINE button by default; the comp fills it.
+   The autofill pane sits OUTSIDE .ashby-application-form-container, so its
+   button has to be named separately — a container-scoped rule misses it. */
+.ashby-application-form-container button,
+.ashby-application-form-autofill-pane button,
+.ashby-application-form-autofill-uploader button,
+.ashby-application-form-autofill-input-root button {
+  background: #a8a8a8 !important;
+  border: 1px solid #a8a8a8 !important;
+  border-radius: 0 !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  min-width: 200px;
+  padding: 10px 16px !important;
+  transition: opacity 150ms ease;
+}
+
+.ashby-application-form-container button:hover,
+.ashby-application-form-autofill-pane button:hover,
+.ashby-application-form-autofill-uploader button:hover,
+.ashby-application-form-autofill-input-root button:hover {
+  opacity: 0.8 !important;
+}
+
+/* The comp's buttons are text-only; Ashby ships a leading icon. */
+.ashby-application-form-container button svg,
+.ashby-application-form-autofill-uploader button svg,
+.ashby-application-form-autofill-input-root button svg {
+  display: none !important;
+}
+
+/* "or drag and drop here" is not in the comp. Delete this rule to keep it —
+   it is genuinely useful affordance copy. */
+.ashby-application-form-container [role="presentation"] p {
+  display: none !important;
+}
+
+/* ── YES / NO toggle ─────────────────────────────────────────────────────────
+   Two <button>s plus a visually-hidden checkbox. Selected state is a hashed
+   class, so it cannot be targeted directly — it is driven by --colorPrimary900
+   in the :root block above, which is why selected comes out steel with white
+   text as drawn. These rules cover the unselected and hover states. */
+
+.ashby-application-form-field-entry [class*="yesno"] button {
+  background: #f7f7f7 !important;
+  border: 1px solid #b3b3b3 !important;
+  color: #2b292a !important;
+  /* The shared button rule above sets min-width:200px and uppercases the
+     label; both have to be undone here or "YES" breaks across two lines. */
+  min-width: 62px !important;
+  white-space: nowrap !important;
+  padding: 8px 18px !important;
+}
+
+.ashby-application-form-field-entry [class*="yesno"] button:hover {
+  background: #ededed !important;
+  border-color: #009bc7 !important;
+  color: #009bc7 !important;
+  opacity: 1 !important;
+}
+
+/* ── Radio groups (the comp's "dropdowns") ───────────────────────────────────
+   Gender, Race, Veteran Status and Disability Status. Boxed so they read as
+   the same family of control as the inputs, since they cannot be made into the
+   dropdowns the comp draws. */
+
+.ashby-application-form-container fieldset {
+  background: #ededed !important;
+  border: 1px solid #b3b3b3 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 14px 16px !important;
+}
+
+.ashby-application-form-container fieldset label {
+  font-size: 14px !important;
+  letter-spacing: 0.03em;
+  color: #2b292a !important;
+  cursor: pointer;
+}
+
+.ashby-application-form-container fieldset label:hover {
+  color: #009bc7 !important; /* the comp's cyan option hover */
+}
+
+.ashby-application-form-container input[type="radio"] {
+  accent-color: #a8a8a8;
+}
+
+/* ── Submit ──────────────────────────────────────────────────────────────── */
+
+.ashby-application-form-submit-button {
+  min-width: 200px !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── Links ───────────────────────────────────────────────────────────────────
+   Sand, matching the link colour already set in the org-level board CSS, so
+   the board and the form read as one system. */
+
+.ashby-application-form-container a {
+  color: #ba9264 !important;
+  text-decoration: underline !important;
+}
+
+/* ── Post-submit ─────────────────────────────────────────────────────────── */
+
+.ashby-application-form-success-container,
+.ashby-application-form-failure-container {
+  font-size: 16px !important;
+  color: #395356 !important;
+}
+
+/* ── Narrow screens ──────────────────────────────────────────────────────────
+   Collapse the pairing; a two-up form under ~700px is unusable. */
+
+@media (max-width: 700px) {
+  .ashby-application-form-section-container {
+    grid-template-columns: 1fr !important;
+  }
+  .ashby-application-form-section-container
+    > .ashby-application-form-field-entry {
+    grid-column: 1 / -1 !important;
+  }
 }
