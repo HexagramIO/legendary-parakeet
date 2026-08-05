@@ -1,3 +1,69 @@
+/* ============================================================================
+   RADIANT — ASHBY APPLICATION FORM
+
+   Served verbatim at /ashby-form.css — it lives in public/, so it is copied
+   into the build untouched: never imported, bundled, minified or purged. What
+   is written here is byte-for-byte what Ashby fetches.
+
+   IT IS STILL NOT LOADED BY DEFAULT. Two things have to be true, and editing
+   this file is neither of them:
+
+     1. NEXT_PUBLIC_ASHBY_CUSTOM_CSS_URL must point at this file's absolute URL
+        (https://radiantnuclear.com/ashby-form.css) in the environment that
+        BUILDS the site — NEXT_PUBLIC_* is inlined, so it is the build that
+        decides, not the running worker. Unset, the embed passes no
+        customCssUrl at all.
+     2. That exact URL must be allowlisted in Ashby: Admin → Job Boards →
+        Theme → "allowed custom CSS URLs", character-for-character. Not on the
+        list and Ashby drops it server-side with no console error — the form
+        renders unstyled. Note that a cache-busting ?v= would be a different
+        string and needs its own entry.
+
+   Without both, the styling in force is the copy pasted into Ashby: Admin →
+   Job Boards → Theme → custom CSS, which is where this originated and which
+   has no edit history — expect drift if anyone edits it there directly.
+
+   Ashby holds ONE org CSS file, currently "Radiant Ashby Careers – Canonical
+   Custom CSS (v1.2)", which styles the job board list. Pasting this in as a
+   replacement drops that styling; append instead. Hosting via customCssUrl
+   sidesteps that entirely — this file is loaded IN ADDITION to the org CSS.
+
+   Written against the LIVE DOM of the Radiant application form (rendered
+   headlessly and inspected), not against a guess, so the selectors below match
+   what Ashby actually ships today.
+
+   ── Two things in the comp that CSS cannot do ──────────────────────────────
+   1. GENDER / RACE / VETERAN STATUS are drawn as dropdowns with a caret, and
+      the comp shows an open RACE menu with a cyan hover row. Ashby renders all
+      three as RADIO GROUPS — 3, 8 and 3 <input type="radio"> respectively.
+      There is no <select> and no listbox anywhere in the form. CSS cannot
+      collapse a radio group into a dropdown; that is a field-type change in
+      Ashby, and these are system EEO fields, so it may not be offered at all.
+      They are styled below as bordered option lists — the same visual family,
+      honestly labelled.
+   2. Field labels are drawn INSIDE the boxes ("FULL NAME" sitting in the
+      input). Ashby puts the <label> above its input and gives the input its
+      own placeholder ("Type here…"). Faking the comp means hiding the real
+      label and leaning on the placeholder — which vanishes the moment someone
+      types, leaving an unlabelled box and no accessible name. Not worth it on
+      a job application. Labels stay above, styled to match the comp's
+      uppercase treatment.
+
+   Everything else in the comp is reproduced.
+
+   ── Editing notes ──────────────────────────────────────────────────────────
+   Prefer the :root block: it is Ashby's documented, supported surface
+   (https://www.ashbyhq.com/job_board_example_css/application-form-only.css).
+   The .ashby-* classes are documented hooks too. Everything BELOW those is
+   element and structural selectors, because Ashby publishes no hook for
+   inputs, buttons, radios or the Yes/No toggle — that part is unsupported and
+   worth re-checking after any Ashby release. Never target the hashed CSS-module
+   classes (_option_1svni_32, _active_1svni_57 …); the hashes change per build.
+   ========================================================================= */
+
+/* The site's typeface. The Adobe kit is domain-scoped, so add jobs.ashbyhq.com
+   to its allowed domains — the iframe requests the fonts from Ashby's origin,
+   not ours. Without it the stack falls through to system sans. */
 @import url("https://use.typekit.net/ifm5sje.css");
 
 :root {
@@ -5,11 +71,17 @@
     "avenir-next-lt-pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     sans-serif;
 
-  /* Steel — the comp's fill for UPLOAD FILE and for a selected YES/NO.
-     Ashby derives the submit button from 600 and the selected toggle from 900,
-     so both land on steel, matching .btn on the site. NOTE: these two are also
-     settable in Admin → Job Boards → Theme; if you set them there, delete them
-     here rather than keeping two sources of truth. */
+  /* Steel — the comp's fill for UPLOAD FILE and for a selected YES/NO. The
+     selected toggle derives from 900, so it lands on steel as drawn.
+
+     These do NOT reach the submit button, whatever the naming suggests: it is
+     painted from the accent in Admin → Job Boards → Theme (currently sand,
+     #ba9264) and is coloured explicitly in the Submit block below. Verified in
+     a live render — the button computed to rgb(186, 146, 100) with both
+     variables set to steel.
+
+     NOTE: these two are also settable in Admin → Job Boards → Theme; if you set
+     them there, delete them here rather than keeping two sources of truth. */
   --colorPrimary600: #a8a8a8;
   --colorPrimary900: #a8a8a8;
 
@@ -27,8 +99,20 @@
 
 /* ── Shell ───────────────────────────────────────────────────────────────── */
 
+/* Two greys, not one: .ashby-application-form-container below covers only the
+   FIELDS. The privacy line, the submit button and Ashby's footer sit outside it
+   on the pane, so without these the comp's grey stops dead under the last
+   question and the rest of the form lands on a white block.
+
+   !important on both — Ashby's own body rule wins the cascade otherwise, which
+   is why a plain `background` here looked applied but wasn't. */
+
 body {
-  background: #dedede;
+  background: #dedede !important;
+}
+
+.ashby-job-posting-left-pane {
+  background: transparent !important;
 }
 
 .ashby-application-form-container {
@@ -309,14 +393,52 @@ body {
   accent-color: #a8a8a8;
 }
 
-/* ── Submit ──────────────────────────────────────────────────────────────── */
+/* ── Submit ──────────────────────────────────────────────────────────────────
+   The comp's full-width steel bar with white uppercase text.
+
+   Colour is set HERE rather than left to --colorPrimary600 because this button
+   is NOT a descendant of .ashby-application-form-container — it is a sibling,
+   alongside the privacy-policy line and Ashby's footer — so the shared button
+   rule above misses it and Ashby paints it with the org accent instead. Only an
+   explicit override lands. (Live DOM at the time of writing: `<button
+   class="_button_… _primary_… _greedy_… _submitButton_… ashby-application-
+   form-submit-button">` whose parent chain is plain wrappers up to <body>.)
+
+   No width rule: Ashby's own `_greedy_` class already stretches it to the form
+   width, which is what the comp draws. */
 
 .ashby-application-form-submit-button {
+  background: #a8a8a8 !important;
+  border: 1px solid #a8a8a8 !important;
+  border-radius: 0 !important;
+  color: #ffffff !important;
   min-width: 200px !important;
-  padding: 12px 24px !important;
+  padding: 14px 24px !important;
   font-size: 14px !important;
+  font-weight: 500 !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
+  transition: opacity 150ms ease;
+}
+
+.ashby-application-form-submit-button:hover {
+  opacity: 0.8 !important;
+}
+
+/* Text-only, like every other button in the comp — Ashby ships a paper-plane
+   icon inside the label. The container-scoped `button svg` rule above doesn't
+   reach this one either. */
+.ashby-application-form-submit-button svg {
+  display: none !important;
+}
+
+/* The "Recruiting Privacy Policy" line directly above the button is the last
+   white strip on the pane. Ashby gives it only a hashed class, so it is matched
+   by what it CONTAINS instead — structural, like the other unsupported
+   selectors here, and worth re-checking after an Ashby release. Delete this
+   rule and a 68px white band reappears under the form. */
+div:has(> span > a[href*="Privacy"]) {
+  background: transparent !important;
 }
 
 /* ── Links ───────────────────────────────────────────────────────────────────
@@ -347,4 +469,8 @@ body {
     > .ashby-application-form-field-entry {
     grid-column: 1 / -1 !important;
   }
+}
+
+footer {
+  display: none !important;
 }
