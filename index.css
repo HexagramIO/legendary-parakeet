@@ -5,14 +5,13 @@
     "avenir-next-lt-pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     sans-serif;
 
-  /* Steel — the comp's fill for UPLOAD FILE and for a selected YES/NO. The
-     selected toggle derives from 900, so it lands on steel as drawn.
+  /* Steel — the comp's fill for UPLOAD FILE.
 
-     These do NOT reach the submit button, whatever the naming suggests: it is
-     painted from the accent in Admin → Job Boards → Theme (currently sand,
-     #ba9264) and is coloured explicitly in the Submit block below. Verified in
-     a live render — the button computed to rgb(186, 146, 100) with both
-     variables set to steel.
+     Neither variable drives the YES/NO toggle or the submit button, whatever
+     the naming suggests — both are coloured explicitly in their own blocks
+     below. The submit button takes the accent from Admin → Job Boards → Theme
+     (currently sand, #ba9264) instead: verified in a live render, where it
+     computed to rgb(186, 146, 100) with both variables here set to steel.
 
      NOTE: these two are also settable in Admin → Job Boards → Theme; if you set
      them there, delete them here rather than keeping two sources of truth. */
@@ -181,6 +180,12 @@ body {
   border: 1px solid #b3b3b3 !important;
   border-radius: 0 !important;
   color: #2b292a !important;
+  /* Defensive: a <textarea> takes monospace from the UA stylesheet rather than
+     inheriting the page font. No posting has a long-answer question today — the
+     only textarea in the live DOM is reCAPTCHA's hidden one — so this is
+     untested against a real field, but it costs nothing and the alternative is
+     a monospace answer box the day someone adds one. */
+  font-family: inherit !important;
   font-size: 14px !important;
   letter-spacing: 0.04em;
   padding: 10px 14px !important;
@@ -276,10 +281,24 @@ body {
 }
 
 /* ── YES / NO toggle ─────────────────────────────────────────────────────────
-   Two <button>s plus a visually-hidden checkbox. Selected state is a hashed
-   class, so it cannot be targeted directly — it is driven by --colorPrimary900
-   in the :root block above, which is why selected comes out steel with white
-   text as drawn. These rules cover the unselected and hover states. */
+   Two <button>s plus a visually-hidden checkbox.
+
+   The unselected rule below is !important (it has to be, to undo the shared
+   button rule), so it also lands on the SELECTED button and flattens whatever
+   Ashby painted there — leave it at that and an answered question looks
+   unanswered. The selected fill therefore has to be restated here, and it
+   cannot come from --colorPrimary900: that variable is not what Ashby uses for
+   this control.
+
+   The one thing that marks the selection is a CSS-module class, `_active_`.
+   Targeting it by SUBSTRING is safe in the way the literal is not — the hash
+   moves every build (`_active_1svni_57` today), the local name does not. Same
+   technique as `[class*="yesno"]` above it.
+
+   The hidden checkbox is NOT usable as the hook, tempting as it looks: driving
+   the live form shows `checked:false, indeterminate:false` for BOTH "nothing
+   chosen yet" and "No chosen", so `:has(input:not(:checked))` would light up NO
+   on a form nobody has touched. Only clicking Yes sets checked. */
 
 .ashby-application-form-field-entry [class*="yesno"] button {
   background: #f7f7f7 !important;
@@ -297,6 +316,25 @@ body {
   border-color: #009bc7 !important;
   color: #009bc7 !important;
   opacity: 1 !important;
+}
+
+/* Selected. #989898 is sampled from the comp — a step darker than the steel on
+   UPLOAD FILE and SUBMIT, which is what makes an answered toggle read as
+   filled-in rather than as another button. Must stay AFTER the :hover rule
+   above: they tie on specificity, so source order is what keeps a selected
+   answer from turning into the cyan hover treatment under the pointer. */
+.ashby-application-form-field-entry [class*="yesno"] button[class*="_active_"] {
+  background: #989898 !important;
+  border-color: #989898 !important;
+  color: #ffffff !important;
+}
+
+.ashby-application-form-field-entry
+  [class*="yesno"]
+  button[class*="_active_"]:hover {
+  background: #8a8a8a !important;
+  border-color: #8a8a8a !important;
+  color: #ffffff !important;
 }
 
 /* ── Radio groups (the comp's "dropdowns") ───────────────────────────────────
