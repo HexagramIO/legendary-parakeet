@@ -15,19 +15,52 @@
 
      NOTE: these two are also settable in Admin → Job Boards → Theme; if you set
      them there, delete them here rather than keeping two sources of truth. */
-  --colorPrimary600: #a8a8a8;
-  --colorPrimary900: #a8a8a8;
+  --colorPrimary600: var(--radiant-steel);
+  --colorPrimary900: var(--radiant-steel);
 
   /* The comp's page grey. */
-  --colorAppBackground: #dedede;
+  --colorAppBackground: var(--radiant-page);
 
-  /* The comp is square throughout; Ashby ships 25px pills and 10px inputs. */
+  /* Ashby ships 25px pills and 10px inputs; the comp is square. These stay 0 —
+     they are the fallback for Ashby chrome this file doesn't name explicitly,
+     and rounding them would round things nobody has looked at.
+
+     The form is no longer square throughout, though: the FIELDS (text inputs,
+     the four dropdowns, the Yes/No toggles) take an explicit 2px, applied in
+     their own rules rather than here so the exception stays visible and
+     enumerable. Buttons and radio markers remain square. */
   --borderRadiusButton: 0;
   --borderRadiusControl: 0;
   --borderRadiusContainer: 0;
 
   --borderWidthBold: 1px;
   --widthMaxJobBoard: 1180px;
+}
+/* ── Our palette ─────────────────────────────────────────────────────────────
+   The values this file paints with, named once. These are OURS, and distinct
+   from the Ashby variables above — those are Ashby's documented API, read by
+   THEIR stylesheet. Prefixed so the two can never collide.
+
+   Nearly every one was retuned at least once while matching the comp; having
+   them in one place is the difference between one edit and eight. */
+:root {
+  --radiant-page: #dedede; /* page grey */
+  --radiant-fill: #ededed; /* control fill */
+  --radiant-line: #b3b3b3; /* control border */
+  --radiant-ink: #2b292a; /* charcoal — labels, headings */
+  --radiant-body: #395356; /* site ink — body copy */
+  --radiant-steel: #a8a8a8; /* button fill */
+  --radiant-steel-hover: #bdbdbd; /* button fill, hovered */
+  --radiant-toggle-on: #989898; /* Yes/No selected */
+  --radiant-toggle-on-hover: #8a8a8a; /* Yes/No selected, hovered */
+  --radiant-cyan: #007ea2; /* cyan-dark — selection, links */
+  --radiant-cyan-hover: #009bc7; /* cyan-deep — hover, focus border */
+
+  /* Field corner rounding. The comp is square; this is the one deliberate
+     departure, and it applies to the FIELD family only — text inputs, the
+     dropdowns, the Yes/No toggles and the two upload strips. Buttons and
+     radio markers stay square, so this is not simply --borderRadius*. */
+  --radiant-radius: 2px;
 }
 
 /* ── Shell ───────────────────────────────────────────────────────────────── */
@@ -41,7 +74,7 @@
    is why a plain `background` here looked applied but wasn't. */
 
 body {
-  background: #dedede !important;
+  background: var(--radiant-page) !important;
 }
 
 .ashby-job-posting-left-pane {
@@ -56,11 +89,11 @@ body {
    EQUAL EMPLOYMENT OPPORTUNITY INFORMATION"; the section margins own that
    rhythm now, and only the 12px under the autofill strip is kept. */
 .ashby-application-form-container {
-  background: #dedede !important;
+  background: var(--radiant-page) !important;
   box-shadow: none !important;
   padding: 12px 0 0 !important;
   font-size: 16px !important;
-  color: #395356 !important; /* site ink */
+  color: var(--radiant-body) !important; /* site ink */
 }
 
 /* ── Two-column layout ───────────────────────────────────────────────────────
@@ -122,7 +155,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #2b292a; /* site charcoal */
+  color: var(--radiant-ink); /* site charcoal */
 }
 
 /* The EEO / veteran / disability blocks are long, and the comp sets them
@@ -130,7 +163,7 @@ body {
    keeps the legal copy from dominating the form. */
 .ashby-application-form-section-header-description {
   font-size: 13px !important;
-  color: #395356 !important;
+  color: var(--radiant-body) !important;
   line-height: 1.5 !important;
 }
 
@@ -170,7 +203,7 @@ div:has(> [class*="_autofillPane_"])::before {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #2b292a;
+  color: var(--radiant-ink);
 }
 
 /* ── Field labels ────────────────────────────────────────────────────────── */
@@ -180,14 +213,14 @@ div:has(> [class*="_autofillPane_"])::before {
   font-weight: 600 !important;
   letter-spacing: 0.06em !important;
   text-transform: uppercase !important;
-  color: #2b292a !important;
+  color: var(--radiant-ink) !important;
   margin-bottom: 6px !important;
 }
 
 .ashby-application-form-question-description,
 .ashby-application-form-texting-consent-description {
   font-size: 13px !important;
-  color: #395356 !important;
+  color: var(--radiant-body) !important;
 }
 
 /* ── Text inputs ─────────────────────────────────────────────────────────────
@@ -201,10 +234,12 @@ div:has(> [class*="_autofillPane_"])::before {
 .ashby-application-form-container input[type="url"],
 .ashby-application-form-container input[type="number"],
 .ashby-application-form-container textarea {
-  background: #ededed !important;
-  border: 1px solid #b3b3b3 !important;
-  border-radius: 0 !important;
-  color: #2b292a !important;
+  background: var(--radiant-fill) !important;
+  border: 1px solid var(--radiant-line) !important;
+  /* 2px, not the square 0 the rest of the form uses — a deliberate exception
+     to the comp, applied to the FIELDS (text inputs and the dropdowns) only. */
+  border-radius: var(--radiant-radius) !important;
+  color: var(--radiant-ink) !important;
   /* Defensive: a <textarea> takes monospace from the UA stylesheet rather than
      inheriting the page font. No posting has a long-answer question today — the
      only textarea in the live DOM is reCAPTCHA's hidden one — so this is
@@ -218,7 +253,7 @@ div:has(> [class*="_autofillPane_"])::before {
 
 .ashby-application-form-container input:focus,
 .ashby-application-form-container textarea:focus {
-  border-color: #009bc7 !important; /* site cyan-deep */
+  border-color: var(--radiant-cyan-hover) !important; /* site cyan-deep */
   outline: none !important;
 }
 
@@ -269,6 +304,9 @@ div:has(> [class*="_autofillPane_"])::before {
   transform: translateY(-50%);
   margin: 0 !important;
   font-size: 12px !important;
+  /* 400 to match the comp — .ashby-application-form-question-title sets 600 for
+     the labels that stay above their control (Resume). */
+  font-weight: 400 !important;
   color: #6f6f6f !important;
   /* Load-bearing. Chrome paints the input's own background OVER an
      absolutely-positioned earlier sibling at z-index:auto, so without this the
@@ -316,6 +354,45 @@ div:has(> [class*="_autofillPane_"])::before {
   color: transparent !important;
 }
 
+/* ── "Name" → "Full name" ────────────────────────────────────────────────────
+   The comp labels this field FULL NAME; Ashby's system field is called "Name".
+   The proper fix is renaming it in Ashby (Admin → the posting's application
+   form), which would also fix what a screen reader announces — this is the
+   CSS stand-in until someone with admin access can do that.
+
+   Hooked on for="_systemfield_name". That id is Ashby's stable system-field
+   name, unlike Phone and LinkedIn whose ids are per-posting UUIDs and would
+   change with the posting.
+
+   Two things this rule has to get right, both learned the hard way:
+
+     1. It must carry the :has() prefix. Without it the selector loses on
+        specificity to the inside-the-box rule above (a class + :has + child,
+        all !important), the original text keeps its 12px, and BOTH labels
+        render — "NAME" in place plus "FULL NAME" underneath it.
+     2. white-space: nowrap on the pseudo. The label's box is only as wide as
+        the text it replaces, so without it "Full name" wraps to one character
+        per line and runs down the length of the form.
+
+   The accessible name stays "Name" — the real text is still in the DOM at
+   font-size 0, not removed — so the visible label and the announced one differ.
+   Renaming the field in Ashby is what closes that gap. */
+
+.ashby-application-form-field-entry:has(input[type="text"])
+  > .ashby-application-form-question-title[for="_systemfield_name"] {
+  font-size: 0 !important;
+  white-space: nowrap;
+}
+
+.ashby-application-form-field-entry:has(input[type="text"])
+  > .ashby-application-form-question-title[for="_systemfield_name"]::before {
+  content: "Full name";
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
 /* ── Required / optional marking ─────────────────────────────────────────────
    The comp carries no asterisks, and on this form that is the right call for a
    reason beyond the drawing: SIX of the eight application fields are required
@@ -353,20 +430,71 @@ div:has(> [class*="_autofillPane_"])::before {
    Drawn in the comp as a bordered strip: label left, filled UPLOAD FILE button
    hard right. */
 
-.ashby-application-form-autofill-input-root,
-.ashby-application-form-autofill-uploader,
-.ashby-application-form-container [role="presentation"] {
-  background: #ededed !important;
-  border: 1px solid #b3b3b3 !important;
-  border-radius: 0 !important;
-  padding: 14px 16px !important;
+/* Two selectors that read like they belong here but don't:
+
+   .ashby-application-form-autofill-uploader is the outer PANE wrapping the
+   strip, not a strip. Painting it gave the block a second, larger #ededed
+   rectangle behind it — a light halo above and below against the #dedede page,
+   easy to read as "white padding".
+
+   .ashby-application-form-container [role="presentation"] matches exactly one
+   element, the resume dropzone, and the resume-strip rule below overrides its
+   background, border, padding, display and justify-content outright — so it
+   contributed nothing but the appearance of doing so. The resume strip is
+   styled there, in one place; this rule is the autofill strip's alone. */
+.ashby-application-form-autofill-input-root {
+  background: var(--radiant-fill) !important;
+  border: 1px solid var(--radiant-line) !important;
+  border-radius: var(--radiant-radius) !important;
+  /* 14px matches the resume strip below, so the two UPLOAD FILE buttons inset
+     identically from the right edge — see the alignment note further down. */
+  padding: 8px 14px !important;
 }
 
-/* The comp puts UPLOAD FILE hard right in its strip; Ashby centres it. */
-.ashby-application-form-container [role="presentation"] {
-  display: flex !important;
-  align-items: center !important;
+/* ── Aligning the two upload strips ──────────────────────────────────────────
+   The comp stacks these as one column: same box width, and the two UPLOAD FILE
+   buttons flush on the same right edge. Ashby insets the autofill strip from
+   the resume strip below it by 17px a side, from three separate sources:
+
+     1. the autofill PANE's own horizontal padding (16px),
+     2. a 1px border on that pane, IN ADDITION to the border on the bordered
+        box inside it — this is the one that is invisible until you measure,
+        and on its own it leaves the two strips exactly 1px out of true,
+     3. the button living in a grid cell (`_cta_`) that doesn't right-align it,
+        which is what left it stranded ~290px short of the edge.
+
+   With all three handled both boxes span the identical 0 → 1713 and both
+   buttons end at 1698. The inner padding is set to the resume strip's 14px so
+   the button insets match rather than merely being close. */
+
+/* The pane is a spacer, not a surface: it contributes only the gap between the
+   "APPLICATION" heading and the strip. Transparent so the page grey runs
+   through, no border of its own (it had one IN ADDITION to the strip's — see
+   the 1px note above), and no horizontal inset so the strip can reach the same
+   edges as the resume row. The 14px top/bottom stays; that gap is the comp's. */
+[class*="_autofillPane_"] {
+  background: transparent !important;
+  /* Stated in full, not as padding-left/right:0 overrides. The 14px used to
+     arrive from the strip rule above, which this block's own comment removes
+     the pane from — leaving it implicit would hand the gap back to whatever
+     Ashby happens to set. */
+  padding: 14px 0 !important;
+  border: 0 !important;
+}
+
+.ashby-application-form-autofill-input-root [class*="_cta_"] {
   justify-content: flex-end !important;
+}
+
+/* Ashby's magic-wand icon beside "AUTOFILL FROM RESUME" — not in the comp, and
+   filled with the board accent (#ba9264), so it was the last sand-coloured
+   thing left on the form. The whole _iconContainer_ goes rather than just the
+   <svg>: the container carries the width and the flex gap, so hiding only the
+   icon leaves the title indented past the description under it. With it gone
+   both set flush at 15px. Recolour instead of hiding by swapping this for
+   `fill: #2b292a` on the svg. */
+.ashby-application-form-autofill-input-root [class*="_iconContainer_"] {
+  display: none !important;
 }
 
 .ashby-application-form-autofill-input-title {
@@ -374,12 +502,12 @@ div:has(> [class*="_autofillPane_"])::before {
   font-weight: 600 !important;
   letter-spacing: 0.06em !important;
   text-transform: uppercase !important;
-  color: #2b292a !important;
+  color: var(--radiant-ink) !important;
 }
 
 .ashby-application-form-autofill-input-description {
   font-size: 13px !important;
-  color: #395356 !important;
+  color: var(--radiant-body) !important;
 }
 
 /* Ashby's upload button is an OUTLINE button by default; the comp fills it.
@@ -389,8 +517,8 @@ div:has(> [class*="_autofillPane_"])::before {
 .ashby-application-form-autofill-pane button,
 .ashby-application-form-autofill-uploader button,
 .ashby-application-form-autofill-input-root button {
-  background: #a8a8a8 !important;
-  border: 1px solid #a8a8a8 !important;
+  background: var(--radiant-steel) !important;
+  border: 1px solid var(--radiant-steel) !important;
   border-radius: 0 !important;
   color: #ffffff !important;
   font-size: 13px !important;
@@ -399,14 +527,49 @@ div:has(> [class*="_autofillPane_"])::before {
   text-transform: uppercase !important;
   min-width: 200px;
   padding: 10px 16px !important;
-  transition: opacity 150ms ease;
+  /* Ashby ships a drop shadow on every button; the comp is flat. */
+  box-shadow: none !important;
+  /* Lighten on hover rather than fading the whole button out. Fading with
+     opacity took the white label down with the fill, which read as the button
+     dimming rather than lighting up. Fast in / slow out, matching .btn and
+     .hover-title on the site. */
+  transition:
+    background-color 400ms ease,
+    border-color 400ms ease !important;
 }
 
 .ashby-application-form-container button:hover,
 .ashby-application-form-autofill-pane button:hover,
 .ashby-application-form-autofill-uploader button:hover,
 .ashby-application-form-autofill-input-root button:hover {
-  opacity: 0.8 !important;
+  background: var(--radiant-steel-hover) !important;
+  border-color: var(--radiant-steel-hover) !important;
+  opacity: 1 !important;
+  transition-duration: 150ms !important;
+}
+
+/* The LABEL, which is where the white actually has to land.
+   `color` on the <button> is not enough and looks like it is: Ashby wraps some
+   button labels in a bare <span> carrying its own black, and inherits on
+   others. The autofill button's label is a plain text node (so it took the
+   button's white), while the resume and submit labels are spans that stayed
+   rgb(0,0,0) — which is why those two read as black text on grey while the
+   computed `color` of all three buttons was white. Check the SPAN, not the
+   button, when this looks wrong again.
+
+   -webkit-text-fill-color alongside color: it wins over `color` where both are
+   set, so overriding only `color` can silently do nothing.
+
+   :not() keeps this off the Yes/No toggle, whose unselected label must stay
+   charcoal — its buttons hold bare text, so they are unaffected either way,
+   but the guard makes that intent explicit rather than incidental. */
+.ashby-application-form-container button:not([class*="_option_1svni_"]) > span,
+.ashby-application-form-autofill-pane button > span,
+.ashby-application-form-autofill-uploader button > span,
+.ashby-application-form-autofill-input-root button > span,
+.ashby-application-form-submit-button > span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* The comp's buttons are text-only; Ashby ships a leading icon. */
@@ -437,8 +600,9 @@ div:has(> [class*="_autofillPane_"])::before {
   display: flex !important;
   align-items: center !important;
   gap: 16px;
-  background: #ededed !important;
-  border: 1px solid #b3b3b3 !important;
+  background: var(--radiant-fill) !important;
+  border: 1px solid var(--radiant-line) !important;
+  border-radius: var(--radiant-radius) !important;
   padding: 8px 14px !important;
 }
 
@@ -498,7 +662,7 @@ div:has(> [class*="_autofillPane_"])::before {
   font-weight: 400 !important;
   letter-spacing: 0.02em !important;
   text-transform: none !important;
-  color: #395356 !important;
+  color: var(--radiant-body) !important;
 }
 
 .ashby-application-form-field-entry [class*="yesno"] {
@@ -507,8 +671,8 @@ div:has(> [class*="_autofillPane_"])::before {
 
 .ashby-application-form-field-entry [class*="yesno"] button {
   background: #f7f7f7 !important;
-  border: 1px solid #b3b3b3 !important;
-  color: #2b292a !important;
+  border: 1px solid var(--radiant-line) !important;
+  color: var(--radiant-ink) !important;
   /* The shared button rule above sets min-width:200px and uppercases the
      label; both have to be undone here or "YES" breaks across two lines. */
   min-width: 62px !important;
@@ -516,10 +680,25 @@ div:has(> [class*="_autofillPane_"])::before {
   padding: 8px 18px !important;
 }
 
+/* 2px on the OUTER corners only, matching the inputs and dropdowns. The two
+   buttons overlap by 1px to share a border — they are a segmented control, not
+   two boxes — so rounding each one fully pinches the join in the middle. YES
+   takes the left corners, NO the right, and the pair reads as a single rounded
+   box. */
+.ashby-application-form-field-entry [class*="yesno"] button:first-of-type {
+  border-top-left-radius: var(--radiant-radius) !important;
+  border-bottom-left-radius: var(--radiant-radius) !important;
+}
+
+.ashby-application-form-field-entry [class*="yesno"] button:last-of-type {
+  border-top-right-radius: var(--radiant-radius) !important;
+  border-bottom-right-radius: var(--radiant-radius) !important;
+}
+
 .ashby-application-form-field-entry [class*="yesno"] button:hover {
-  background: #ededed !important;
-  border-color: #009bc7 !important;
-  color: #009bc7 !important;
+  background: var(--radiant-fill) !important;
+  border-color: var(--radiant-cyan-hover) !important;
+  color: var(--radiant-cyan-hover) !important;
   opacity: 1 !important;
 }
 
@@ -529,16 +708,16 @@ div:has(> [class*="_autofillPane_"])::before {
    above: they tie on specificity, so source order is what keeps a selected
    answer from turning into the cyan hover treatment under the pointer. */
 .ashby-application-form-field-entry [class*="yesno"] button[class*="_active_"] {
-  background: #989898 !important;
-  border-color: #989898 !important;
+  background: var(--radiant-toggle-on) !important;
+  border-color: var(--radiant-toggle-on) !important;
   color: #ffffff !important;
 }
 
 .ashby-application-form-field-entry
   [class*="yesno"]
   button[class*="_active_"]:hover {
-  background: #8a8a8a !important;
-  border-color: #8a8a8a !important;
+  background: var(--radiant-toggle-on-hover) !important;
+  border-color: var(--radiant-toggle-on-hover) !important;
   color: #ffffff !important;
 }
 
@@ -575,25 +754,44 @@ div:has(> [class*="_autofillPane_"])::before {
         hover, and tapping the closed box focuses nothing, so the options would
         be unreachable. Below that guard the group stays fully expanded — the
         honest bordered list it was.
-     3. Opening PUSHES the content below it down rather than overlaying it, as
-        an absolutely-positioned menu would. The options are siblings with no
-        wrapper to position, so an overlay isn't available without one. This is
-        the one place the comp and the build visibly differ.
+     3. The panel OVERLAYS the content below it, as the comp draws. The trick
+        isn't positioning the options — they're siblings with no wrapper to
+        position against — it's pinning the fieldset to a fixed `height` so the
+        grid row can't grow, and letting the options overflow it. Two things
+        that has to carry: an opaque background on each option row (they'd be
+        transparent otherwise and the veteran copy would read through the
+        menu), and a z-index on the open fieldset so the panel paints over the
+        sections after it rather than under them.
 
-   The collapsed height (42px) is set to match the text inputs so the row reads
-   as the same family of control. */
+   The collapsed height (41px) is set to match the text inputs so the row reads
+   as the same family of control, and is the SAME number as the pinned height —
+   if you change one, change the other or the closed control will jump. */
 
 .ashby-application-form-container fieldset {
   position: relative;
-  background: #ededed !important;
-  border: 1px solid #b3b3b3 !important;
-  border-radius: 0 !important;
+  background: var(--radiant-fill) !important;
+  border: 1px solid var(--radiant-line) !important;
+  border-radius: var(--radiant-radius) !important;
   margin: 0 !important;
   padding: 10px 14px !important;
   box-sizing: border-box;
 }
 
 @media (hover: hover) and (pointer: fine) {
+  /* Pinned height + visible overflow is what makes the panel drop OVER the page
+     instead of pushing it down. Must equal the natural collapsed height. */
+  .ashby-application-form-container fieldset {
+    height: 41px;
+    overflow: visible;
+  }
+
+  /* Lift the open control above the sections that follow it, or the panel
+     paints underneath them. */
+  .ashby-application-form-container fieldset:hover,
+  .ashby-application-form-container fieldset:focus-within {
+    z-index: 5;
+  }
+
   .ashby-application-form-container fieldset > div[class*="_option_"] {
     max-height: 0 !important;
     min-height: 0 !important;
@@ -601,18 +799,47 @@ div:has(> [class*="_autofillPane_"])::before {
     margin-bottom: 0 !important;
     opacity: 0;
     overflow: hidden;
-    transition:
-      max-height 220ms ease,
-      margin-top 220ms ease,
-      opacity 160ms ease;
+    /* Opaque, and bled out to the control's edges with a matching side border,
+       so the open rows read as one panel rather than as floating text over the
+       copy underneath. */
+    background: var(--radiant-fill);
+    box-sizing: border-box;
+    /* 30 and -15, not 28 and -14. The percentage resolves against the
+       fieldset's CONTENT box, which is inset by its 14px padding AND its own
+       1px border on each side — compensating for only the padding leaves the
+       panel exactly 1px narrow, reading as a hairline step against the closed
+       control's edge. */
+    width: calc(100% + 30px);
+    margin-left: -15px !important;
+    padding: 0 14px;
+    border-left: 1px solid var(--radiant-line);
+    border-right: 1px solid var(--radiant-line);
+    /* Height only — opacity is deliberately NOT transitioned. Fading a row
+       fades its background with it, so a cross-faded panel is see-through for
+       the length of the animation and the copy underneath flickers through it.
+       Snapping opacity and unrolling the height keeps the panel opaque the
+       whole way. */
+    transition: max-height 220ms ease;
+  }
+
+  /* The open panel's foot carries the control's 2px radius, so the menu reads
+     as one rounded box with the collapsed control rather than a rounded box
+     with a square-cornered list hanging off it. */
+  .ashby-application-form-container
+    fieldset
+    > div[class*="_option_"]:last-child {
+    border-bottom: 1px solid var(--radiant-line);
+    border-bottom-left-radius: var(--radiant-radius);
+    border-bottom-right-radius: var(--radiant-radius);
   }
 
   .ashby-application-form-container fieldset:hover > div[class*="_option_"],
   .ashby-application-form-container
     fieldset:focus-within
     > div[class*="_option_"] {
-    max-height: 80px !important;
-    margin-top: 8px !important;
+    max-height: 40px !important;
+    padding-top: 4px;
+    padding-bottom: 4px;
     opacity: 1;
   }
 
@@ -622,17 +849,46 @@ div:has(> [class*="_autofillPane_"])::before {
     margin-bottom: 0 !important;
   }
 
-  /* The comp's caret. Pinned to the box, not the flow, so it holds its place
-     when the panel opens. */
+  /* The caret — the SAME asset the careers-page filter dropdowns use
+     (public/arrow-down-brown.png, a 24×20 @2x drawn at 12×10), so the two sets
+     of dropdowns match. It rotates on open like the careers one does, on the
+     same 200ms.
+
+     Despite the filename there is no brown in it: all 29 palette entries are
+     charcoal (#2b292a, the site token) plus one slate anti-alias pixel. So it
+     costs nothing against the no-sand rule elsewhere in this file.
+
+     Inlined as a data URI rather than linked, and that is not a size choice —
+     it's the only form that works. A relative path resolves against whichever
+     host serves this stylesheet (hexagramio.github.io today), and an absolute
+     one to radiantnuclear.com would make the form's chrome depend on our
+     domain being reachable from inside Ashby's iframe, with different URLs for
+     local and drafts. The whole file is 341 bytes.
+
+     Pinned to the box, not the flow, so it holds its place when the panel
+     opens. */
   .ashby-application-form-container
     fieldset
     > .ashby-application-form-question-title::after {
-    content: "▼";
+    content: "";
     position: absolute;
-    top: 12px;
+    top: 50%;
     right: 14px;
-    font-size: 10px;
-    color: #2b292a;
+    width: 12px;
+    height: 10px;
+    transform: translateY(-50%);
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAUCAMAAACgaw2xAAAAV1BMVEVMaXErKSssKisrKissKCwoKCgqKiorKSorKiorKCswMDAsKCosKSssKSosKiowIDAtKyssKiorJykrKSotKSktKS0gICApJikrKysrKisqKSosLCwrKSq+zCeFAAAAHHRSTlMAv+/vQCCA359gEIC/kIAQYK9wz1BQEFAwz69AmSJXCwAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAHxJREFUGNN1j9sWgjAMBKdgTVG5iHfl/79TCpUjsMzjzkk2gfrZVMGZZV3ELi5UzaeGVyd5U2oR2Gnh4aRyB3qk6AW2zi3mFBsDomUcEC3XJDgvf/hxyGeL/CS4ieaRUi0alk3P2H0m8Kkm8yxINz9Y0cZ8j+C4kffmP/8C47geI/d+IpYAAAAASUVORK5CYII=")
+      center / 12px 10px no-repeat;
+    transition: transform 200ms ease;
+  }
+
+  .ashby-application-form-container
+    fieldset:hover
+    > .ashby-application-form-question-title::after,
+  .ashby-application-form-container
+    fieldset:focus-within
+    > .ashby-application-form-question-title::after {
+    transform: translateY(-50%) rotate(180deg);
   }
 }
 
@@ -649,12 +905,14 @@ div:has(> [class*="_autofillPane_"])::before {
 .ashby-application-form-container fieldset label {
   font-size: 14px !important;
   letter-spacing: 0.03em;
-  color: #2b292a !important;
+  color: var(--radiant-ink) !important;
   cursor: pointer;
 }
 
 .ashby-application-form-container fieldset label:hover {
-  color: #009bc7 !important; /* the comp's cyan option hover */
+  color: var(
+    --radiant-cyan-hover
+  ) !important; /* the comp's cyan option hover */
 }
 
 /* …but NOT the group's own heading, which is also a <label>. Without this,
@@ -663,7 +921,7 @@ div:has(> [class*="_autofillPane_"])::before {
 .ashby-application-form-container
   fieldset
   > .ashby-application-form-question-title:hover {
-  color: #2b292a !important;
+  color: var(--radiant-ink) !important;
 }
 
 /* Ashby draws its radios as a round <span>, so accent-color alone leaves
@@ -679,8 +937,141 @@ div:has(> [class*="_autofillPane_"])::before {
   border-radius: 0 !important;
 }
 
+/* ── Marker size ─────────────────────────────────────────────────────────────
+   Ashby's marker is a 24px box with a 12px mark inside; the comp's is small.
+   12px box with an 8px mark, centred by whole pixels: 1px border + 1px inset
+   on each side, and 2 + 8 + 2 = 12 exactly.
+
+   All three parts have to be sized together — the bordered _container_ (what
+   you see), the _circle_ (the fill that turns cyan when checked), and the
+   invisible <input> that is the real hit target. The input is a static-flow
+   child of the container, so leaving it at 24px inside a 12px box stretches
+   the box straight back out.
+
+   Shrinking the hit target is safe HERE specifically because each option's
+   <label> is properly associated with its input (verified: label.control ===
+   input), so the row text stays a click target and the 12px square is not the
+   only way in. */
+
+.ashby-application-form-container fieldset span[class*="_container_132c8"] {
+  width: 12px !important;
+  height: 12px !important;
+  flex: 0 0 auto;
+  /* Optical centring on the label's text box. align-items:center centres the
+     MARGIN box, so this shifts the marker by half its value — 2px of margin
+     buys 1px of travel, which lands it within 1px of the text centre. */
+  margin-top: 2px !important;
+  /* Containing block for the absolutely-positioned mark below. */
+  position: relative !important;
+  /* Ashby's focus ring, replaced rather than removed — see the focus rules
+     further down for why it is transparent instead of none. */
+  outline: 2px solid transparent !important;
+  outline-offset: 0 !important;
+}
+
+.ashby-application-form-container
+  fieldset
+  span[class*="_container_132c8"]
+  input {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 !important;
+}
+
+/* The mark is positioned explicitly rather than centred.
+
+   Ashby ships it with `margin: -1px 0 0 -1px`, tuned for the original 24px
+   geometry, inside a CSS grid that also holds the invisible <input> — so at
+   12px it landed 1px off centre (3px from the left/top, 1px from the
+   right/bottom), which is what makes a selected option look askew rather than
+   small. Neither `place-items: center` nor `inset: 0` + `margin: auto` fixed
+   it: with two grid children and a percentage resolving against the border box
+   rather than the 10px padding box, both still resolved to 3/1.
+
+   Absolute + whole-pixel insets sidesteps all of that. The containing block is
+   the container's padding box (10px, starting 1px in from the border), so
+   top/left of 1px puts the mark 2px from the border-box edge on every side.
+   Change the 8px and these two 1px insets together, or it goes off centre
+   again. */
+.ashby-application-form-container fieldset span[class*="_circle_"] {
+  position: absolute !important;
+  top: 1px !important;
+  left: 1px !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 8px !important;
+  height: 8px !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+/* ── Marker focus state ──────────────────────────────────────────────────────
+   Ashby draws focus as `outline: rgba(8,0,234,0.13) solid 4px` on the marker —
+   translucent blue at 13%, which over the grey reads as a padded darker patch
+   around the square rather than as a focus ring. It is Ashby's own style, not
+   the browser default, so `outline: none` on the input never touched it.
+
+   It is REPLACED, not deleted. The panel these live in only opens on hover or
+   focus-within, so a keyboard user tabbing through has no pointer to tell them
+   where they are — remove the indicator outright and the group becomes very
+   hard to operate without a mouse. The focused marker takes the cyan border
+   instead, and focus-visible (keyboard only, so a mouse click stays clean)
+   additionally gets a cyan ring.
+
+   `transparent` rather than `none`: Windows High Contrast Mode renders a
+   transparent outline as a visible one, so the ring survives there.
+
+   NB the border swap is also a sand fix. A focused-but-unchecked marker is
+   bordered #ba9264 by Ashby — the state sweep that declared the form
+   sand-free ran with nothing focused and missed it.
+
+   The transparent resting outline is set with the marker's other box
+   properties above, so the marker has one rule rather than three. */
+
+.ashby-application-form-container
+  fieldset
+  span[class*="_container_132c8"]:has(input:focus) {
+  border-color: var(--radiant-cyan) !important;
+}
+
+.ashby-application-form-container
+  fieldset
+  span[class*="_container_132c8"]:has(input:focus-visible) {
+  outline-color: var(--radiant-cyan) !important;
+  outline-offset: 2px !important;
+}
+
+.ashby-application-form-container fieldset div[class*="_option_"] {
+  align-items: center;
+}
+
 .ashby-application-form-container input[type="radio"] {
-  accent-color: #a8a8a8;
+  accent-color: var(--radiant-steel);
+}
+
+/* Selected option — site cyan-dark, not the sand the org theme paints.
+   accent-color does NOT reach this: the native radio is at opacity 0 and the
+   visible mark is Ashby's own <span>, whose fill comes from the board accent
+   (#ba9264). Hooked off :checked on the real input rather than the sibling
+   `_option_ true` class, which is a React artifact and not something to lean
+   on. */
+.ashby-application-form-container
+  fieldset
+  div[class*="_option_"]:has(input:checked)
+  span[class*="_circle_"] {
+  background: var(--radiant-cyan) !important;
+}
+
+/* The checked marker's BORDER is painted from the board accent too, separately
+   from its fill — leave it and a selected option reads as a cyan mark inside a
+   sand box. Ashby marks the state with a `_checked_` module class, but this
+   hangs off :checked on the real input for the same reason the fill does: the
+   class carries a per-build hash. */
+.ashby-application-form-container
+  fieldset
+  div[class*="_option_"]:has(input:checked)
+  span[class*="_container_132c8"] {
+  border-color: var(--radiant-cyan) !important;
 }
 
 /* ── Submit ──────────────────────────────────────────────────────────────────
@@ -698,8 +1089,8 @@ div:has(> [class*="_autofillPane_"])::before {
    width, which is what the comp draws. */
 
 .ashby-application-form-submit-button {
-  background: #a8a8a8 !important;
-  border: 1px solid #a8a8a8 !important;
+  background: var(--radiant-steel) !important;
+  border: 1px solid var(--radiant-steel) !important;
   border-radius: 0 !important;
   color: #ffffff !important;
   min-width: 200px !important;
@@ -708,11 +1099,20 @@ div:has(> [class*="_autofillPane_"])::before {
   font-weight: 500 !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
-  transition: opacity 150ms ease;
+  /* Same flat fill and lighten-on-hover as the two UPLOAD FILE buttons — the
+     comp treats all three as one control. Restated rather than shared because
+     this button is outside .ashby-application-form-container (see above). */
+  box-shadow: none !important;
+  transition:
+    background-color 400ms ease,
+    border-color 400ms ease !important;
 }
 
 .ashby-application-form-submit-button:hover {
-  opacity: 0.8 !important;
+  background: var(--radiant-steel-hover) !important;
+  border-color: var(--radiant-steel-hover) !important;
+  opacity: 1 !important;
+  transition-duration: 150ms !important;
 }
 
 /* Text-only, like every other button in the comp — Ashby ships a paper-plane
@@ -732,11 +1132,17 @@ div:has(> span > a[href*="Privacy"]) {
 }
 
 /* ── Links ───────────────────────────────────────────────────────────────────
-   Sand, matching the link colour already set in the org-level board CSS, so
-   the board and the form read as one system. */
+   Cyan-dark, NOT the sand this once used to match the org-level board CSS.
+   Sand is now deliberately absent from the form (see the radio fill and border
+   above, and the autofill icon), so a sand link would be the only one left.
+
+   Only one link is affected — www.dol.gov/ofccp in the disability text. The
+   "Recruiting Privacy Policy" and "Powered by Ashby" links sit outside
+   .ashby-application-form-container and are slate from Ashby's own styles, so
+   this rule doesn't reach them and they were never sand. */
 
 .ashby-application-form-container a {
-  color: #ba9264 !important;
+  color: var(--radiant-cyan) !important;
   text-decoration: underline !important;
 }
 
@@ -745,7 +1151,7 @@ div:has(> span > a[href*="Privacy"]) {
 .ashby-application-form-success-container,
 .ashby-application-form-failure-container {
   font-size: 16px !important;
-  color: #395356 !important;
+  color: var(--radiant-body) !important;
 }
 
 /* ── Narrow screens ──────────────────────────────────────────────────────────
