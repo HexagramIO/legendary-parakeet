@@ -48,10 +48,17 @@ body {
   background: transparent !important;
 }
 
+/* NB this is only the APPLICATION FIELDS container (_jobPostingForm_). The
+   EEO, veteran and disability sections are in a separate sibling,
+   .ashby-survey-form-container — which is why the padding here shows up as a
+   gap in the middle of the form rather than at its foot. Ashby's 40px bottom
+   padding plus the section margin is what left the ~100px dead band above "U.S.
+   EQUAL EMPLOYMENT OPPORTUNITY INFORMATION"; the section margins own that
+   rhythm now, and only the 12px under the autofill strip is kept. */
 .ashby-application-form-container {
   background: #dedede !important;
   box-shadow: none !important;
-  padding: 40px 0 !important;
+  padding: 12px 0 0 !important;
   font-size: 16px !important;
   color: #395356 !important; /* site ink */
 }
@@ -69,13 +76,23 @@ body {
 .ashby-application-form-section-container {
   display: grid !important;
   grid-template-columns: 1fr 1fr;
-  gap: 16px 24px;
+  /* Comp runs tighter than Ashby's default rhythm throughout. */
+  gap: 12px 20px;
   align-items: start;
-  margin-bottom: 32px !important;
+  margin-bottom: 24px !important;
 }
 
 .ashby-application-form-section-header {
   grid-column: 1 / -1;
+}
+
+/* Ashby gives every field entry its own bottom margin, and a grid row sizes to
+   its item's MARGIN box — so that margin stacked on top of the row gap and made
+   each row ~24px taller than its contents. Dropping it hands the vertical
+   rhythm to `gap` alone, which is what the comp's density needs. */
+.ashby-application-form-section-container
+  > .ashby-application-form-field-entry {
+  margin-bottom: 0 !important;
 }
 
 /* Resume upload, and the third Yes/No, run the full width. */
@@ -108,9 +125,13 @@ body {
   color: #2b292a; /* site charcoal */
 }
 
+/* The EEO / veteran / disability blocks are long, and the comp sets them
+   noticeably smaller and tighter than Ashby's 16px body — that density is what
+   keeps the legal copy from dominating the form. */
 .ashby-application-form-section-header-description {
+  font-size: 13px !important;
   color: #395356 !important;
-  line-height: 1.6 !important;
+  line-height: 1.5 !important;
 }
 
 .ashby-application-form-section-header-description p {
@@ -129,18 +150,22 @@ body {
 }
 
 /* The injected "APPLICATION" heading. The first section has no title of its
-   own — the comp shows one, so it is supplied here. Content in CSS is a
-   presentational label only; it carries no semantics and won't be translated.
+   own, and the comp puts one ABOVE the autofill strip. That strip is not in
+   .ashby-application-form-container — it is an earlier SIBLING of it — so a
+   ::before on the section container renders below the strip, which is the
+   wrong order.
 
-   Selected by ABSENCE of a section header rather than by position: the EEO,
-   veteran and disability sections all carry their own heading, and every
-   section container is a :first-child of its own wrapper, so a positional
-   selector stamps "Application" onto all four. */
-.ashby-application-form-section-container:not(
-    :has(.ashby-application-form-section-header)
-  )::before {
+   It therefore hangs off the unclassed <div> that parents both (autofill pane,
+   form container, survey container, submit button), matched by what it
+   CONTAINS — structural, like the privacy-line rule near the foot of this file,
+   and worth re-checking after an Ashby release.
+
+   Content in CSS is a presentational label only; it carries no semantics and
+   won't be translated. */
+div:has(> [class*="_autofillPane_"])::before {
   content: "Application";
-  grid-column: 1 / -1;
+  display: block;
+  margin-bottom: 12px;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -197,14 +222,131 @@ body {
   outline: none !important;
 }
 
-/* The comp shows the field name in the box. Ashby's placeholder is "Type
-   here…", so this only sets the treatment — see the header note on why the
-   label is not moved inside. */
+/* ── Labels inside the box ───────────────────────────────────────────────────
+   The comp draws the field name INSIDE the input ("FULL NAME" sitting in the
+   box), with no separate label above and no asterisk.
+
+   Done by moving the REAL <label> over the input rather than by leaning on the
+   placeholder, which is what an earlier pass rejected on accessibility
+   grounds. Two reasons this version is safe where that one wasn't:
+
+     1. The label element stays in the DOM and in the accessibility tree — it is
+        positioned, not replaced — so the input keeps its accessible name even
+        when the text is visually faded.
+     2. CSS cannot rewrite placeholder TEXT anyway. Ashby's is "Type here…",
+        not "Full name", so the placeholder route could never have produced
+        what the comp draws.
+
+   The label fades once the field has content, so it behaves like the
+   placeholder it is standing in for. :placeholder-shown is the signal — every
+   text field here ships a placeholder (text/email/tel/url all verified), so it
+   is a reliable "still empty" test.
+
+   Scoped by INPUT TYPE, at any depth. Type is what matters and depth is not
+   consistent: Name, Email and LinkedIn wrap their input in a <div>, Phone puts
+   it directly in the entry. A `> div > input` child selector silently skips
+   Phone — which is exactly what it did on the first pass, leaving that one
+   label stranded above its box while the others moved in. */
+
+.ashby-application-form-field-entry:has(input[type="text"]),
+.ashby-application-form-field-entry:has(input[type="email"]),
+.ashby-application-form-field-entry:has(input[type="tel"]),
+.ashby-application-form-field-entry:has(input[type="url"]) {
+  position: relative;
+}
+
+.ashby-application-form-field-entry:has(input[type="text"])
+  > .ashby-application-form-question-title,
+.ashby-application-form-field-entry:has(input[type="email"])
+  > .ashby-application-form-question-title,
+.ashby-application-form-field-entry:has(input[type="tel"])
+  > .ashby-application-form-question-title,
+.ashby-application-form-field-entry:has(input[type="url"])
+  > .ashby-application-form-question-title {
+  position: absolute !important;
+  top: 50%;
+  left: 15px; /* input padding 14px + its 1px border */
+  transform: translateY(-50%);
+  margin: 0 !important;
+  font-size: 12px !important;
+  color: #6f6f6f !important;
+  /* Load-bearing. Chrome paints the input's own background OVER an
+     absolutely-positioned earlier sibling at z-index:auto, so without this the
+     label is laid out correctly — right position, right size, opacity 1 — and
+     simply invisible behind the field. Nothing in the computed styles shows it;
+     the only tell is the empty box. */
+  z-index: 2;
+  /* The label now sits ON the input, so a click must reach the field rather
+     than being eaten by the text. Label-for focusing is lost; clicking the box
+     itself does the same job. */
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+/* Typed in → the standing label gets out of the way.
+
+   The input TYPE has to be named here, not just `input`. A control with no
+   placeholder attribute at all — the resume's type=file, the hidden checkbox
+   behind each Yes/No toggle — never matches :placeholder-shown, so a bare
+   `:has(input:not(:placeholder-shown))` is true for those entries from the
+   first paint and silently blanks their labels. That is what removed the
+   RESUME label and all three Yes/No questions on the first pass. */
+.ashby-application-form-field-entry:has(
+    input[type="text"]:not(:placeholder-shown)
+  )
+  > .ashby-application-form-question-title,
+.ashby-application-form-field-entry:has(
+    input[type="email"]:not(:placeholder-shown)
+  )
+  > .ashby-application-form-question-title,
+.ashby-application-form-field-entry:has(
+    input[type="tel"]:not(:placeholder-shown)
+  )
+  > .ashby-application-form-question-title,
+.ashby-application-form-field-entry:has(
+    input[type="url"]:not(:placeholder-shown)
+  )
+  > .ashby-application-form-question-title {
+  opacity: 0;
+}
+
+/* Ashby's own placeholder would print UNDER the label text. The label is the
+   comp's placeholder now, so the real one is hidden rather than styled. */
 .ashby-application-form-container ::placeholder {
-  color: #8a8a8a !important;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 13px;
+  color: transparent !important;
+}
+
+/* ── Required / optional marking ─────────────────────────────────────────────
+   The comp carries no asterisks, and on this form that is the right call for a
+   reason beyond the drawing: SIX of the eight application fields are required
+   (all but Phone and LinkedIn), so an asterisk marks the majority and reads as
+   noise. The marking is inverted instead — the two optional fields say so, and
+   unmarked means required.
+
+   The inside-the-box labels above make removal doubly right: an asterisk now
+   sits INSIDE the field and fades out the moment someone types, so it had
+   stopped being a reliable indicator anyway.
+
+   One thing the asterisk was carrying alone: the three Yes/No questions are
+   required but ship no `required`/`aria-required` attribute (Name, Email and
+   Resume do). So for those three nothing announces requiredness, and the
+   "unmarked = required" convention below is what covers them. If Ashby ever
+   gains a required flag on toggle questions, this is the note to revisit. */
+
+.ashby-application-form-question-title[class*="_required_"]::after {
+  display: none !important;
+}
+
+/* :not(fieldset) keeps this off the four EEO groups — they are genuinely
+   optional, but they already say so in their section description, and their
+   ::after slot is holding the dropdown caret. */
+.ashby-application-form-field-entry:not(fieldset)
+  > .ashby-application-form-question-title:not([class*="_required_"])::after {
+  content: " (optional)";
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #9a9a9a;
 }
 
 /* ── Upload blocks (autofill pane + resume) ──────────────────────────────────
@@ -280,6 +422,43 @@ body {
   display: none !important;
 }
 
+/* ── Resume row ──────────────────────────────────────────────────────────────
+   The comp draws this as ONE strip — "UPLOAD RESUME" set inside the box on the
+   left, UPLOAD FILE hard right — matching the autofill strip above it. Ashby
+   stacks a label ABOVE a tall dropzone instead, which is what leaves the big
+   empty bordered block in the current render.
+
+   So the border moves up to the field entry, and the dropzone inside it is
+   flattened to a transparent flex child. Matched via the dropzone's stable
+   `_instructions_` local name rather than [role="presentation"], which the
+   autofill strip also carries. */
+
+.ashby-application-form-field-entry:has(> div > div[class*="_instructions_"]) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px;
+  background: #ededed !important;
+  border: 1px solid #b3b3b3 !important;
+  padding: 8px 14px !important;
+}
+
+.ashby-application-form-field-entry:has(> div > div[class*="_instructions_"])
+  > .ashby-application-form-question-title {
+  margin: 0 !important;
+  flex: 0 0 auto;
+}
+
+/* The dropzone keeps the click target but gives up its own box. */
+.ashby-application-form-field-entry:has(> div > div[class*="_instructions_"])
+  > div {
+  flex: 1 1 auto;
+  display: flex !important;
+  justify-content: flex-end !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
 /* ── YES / NO toggle ─────────────────────────────────────────────────────────
    Two <button>s plus a visually-hidden checkbox.
 
@@ -299,6 +478,32 @@ body {
    the live form shows `checked:false, indeterminate:false` for BOTH "nothing
    chosen yet" and "No chosen", so `:has(input:not(:checked))` would light up NO
    on a form nobody has touched. Only clicking Yes sets checked. */
+
+/* The comp puts the question and its toggle on ONE row — question left in
+   sentence case at body weight, YES/NO hard right — rather than Ashby's
+   uppercase label above a left-aligned toggle. This is also what closes the
+   dead vertical space under the third question. */
+.ashby-application-form-field-entry:has([class*="yesno"]) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px;
+}
+
+/* Overrides the shared uppercase label treatment for these three only. */
+.ashby-application-form-field-entry:has([class*="yesno"])
+  > .ashby-application-form-question-title {
+  margin: 0 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: #395356 !important;
+}
+
+.ashby-application-form-field-entry [class*="yesno"] {
+  flex: 0 0 auto;
+}
 
 .ashby-application-form-field-entry [class*="yesno"] button {
   background: #f7f7f7 !important;
@@ -337,17 +542,108 @@ body {
   color: #ffffff !important;
 }
 
-/* ── Radio groups (the comp's "dropdowns") ───────────────────────────────────
-   Gender, Race, Veteran Status and Disability Status. Boxed so they read as
-   the same family of control as the inputs, since they cannot be made into the
-   dropdowns the comp draws. */
+/* ── Radio groups drawn as the comp's dropdowns ──────────────────────────────
+   Gender, Race, Veteran Status and Disability Status. Ashby renders all four as
+   radio GROUPS — there is no <select> anywhere in the form, and these are
+   system EEO fields whose type isn't ours to change. A real dropdown is
+   therefore off the table.
+
+   What IS reachable is the comp's SHAPE: a one-line control with a caret that
+   opens to a list of options with a cyan hover. The fieldset is clipped to the
+   height of its own legend and grows on hover or focus-within.
+
+   Three things to know before editing:
+
+     1. The OPTIONS collapse, not the fieldset. Clipping the fieldset to a fixed
+        height looks right until you notice a sliver of the first radio showing
+        under the label — the options begin immediately after it, so any height
+        that clears the label also reveals part of an option. Collapsing each
+        option row instead lets the box take its natural height (41px, against
+        the text inputs' 38) with nothing peeking out.
+
+        They collapse with max-height/opacity, NOT display:none. A hidden option
+        cannot be focused, so the group would be unreachable by keyboard and the
+        panel would never open for anyone tabbing through. Clipped radios stay
+        focusable, and tabbing into one fires :focus-within, which opens the
+        panel — verified: 41px → focus a radio → 137px → blur → 41px.
+
+        min-height and margin have to be zeroed alongside max-height. Ashby
+        gives each option row a min-height (which WINS over max-height, per
+        spec) and an 8px top margin (which max-height doesn't touch at all) —
+        leave either and the "collapsed" box still stands 65px tall.
+     2. It is guarded to fine-pointer, hovering devices. A touch device has no
+        hover, and tapping the closed box focuses nothing, so the options would
+        be unreachable. Below that guard the group stays fully expanded — the
+        honest bordered list it was.
+     3. Opening PUSHES the content below it down rather than overlaying it, as
+        an absolutely-positioned menu would. The options are siblings with no
+        wrapper to position, so an overlay isn't available without one. This is
+        the one place the comp and the build visibly differ.
+
+   The collapsed height (42px) is set to match the text inputs so the row reads
+   as the same family of control. */
 
 .ashby-application-form-container fieldset {
+  position: relative;
   background: #ededed !important;
   border: 1px solid #b3b3b3 !important;
   border-radius: 0 !important;
   margin: 0 !important;
-  padding: 14px 16px !important;
+  padding: 10px 14px !important;
+  box-sizing: border-box;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ashby-application-form-container fieldset > div[class*="_option_"] {
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      max-height 220ms ease,
+      margin-top 220ms ease,
+      opacity 160ms ease;
+  }
+
+  .ashby-application-form-container fieldset:hover > div[class*="_option_"],
+  .ashby-application-form-container
+    fieldset:focus-within
+    > div[class*="_option_"] {
+    max-height: 80px !important;
+    margin-top: 8px !important;
+    opacity: 1;
+  }
+
+  .ashby-application-form-container
+    fieldset
+    > .ashby-application-form-question-title {
+    margin-bottom: 0 !important;
+  }
+
+  /* The comp's caret. Pinned to the box, not the flow, so it holds its place
+     when the panel opens. */
+  .ashby-application-form-container
+    fieldset
+    > .ashby-application-form-question-title::after {
+    content: "▼";
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 10px;
+    color: #2b292a;
+  }
+}
+
+/* Ashby prints the question description inside the group — "Input gender", and
+   in RACE the full 1,200-character definition list. The comp's dropdown shows
+   option labels only; the veteran definitions it DOES show live in the section
+   description, which is a different element and untouched. */
+.ashby-application-form-container
+  fieldset
+  > .ashby-application-form-question-description {
+  display: none !important;
 }
 
 .ashby-application-form-container fieldset label {
@@ -359,6 +655,28 @@ body {
 
 .ashby-application-form-container fieldset label:hover {
   color: #009bc7 !important; /* the comp's cyan option hover */
+}
+
+/* …but NOT the group's own heading, which is also a <label>. Without this,
+   hovering anywhere on the control turns "RACE" cyan, when the comp lights up
+   only the option under the pointer. */
+.ashby-application-form-container
+  fieldset
+  > .ashby-application-form-question-title:hover {
+  color: #2b292a !important;
+}
+
+/* Ashby draws its radios as a round <span>, so accent-color alone leaves
+   circles in a comp that is square throughout. The radius lives on the
+   CONTAINER span (24px), not on the _circle_ inside it — squaring only the
+   circle computes to border-radius:0 and still renders round. */
+.ashby-application-form-container fieldset span[class*="_container_132c8"],
+.ashby-application-form-container
+  fieldset
+  span[class*="_container_132c8"]
+  input,
+.ashby-application-form-container fieldset span[class*="_circle_"] {
+  border-radius: 0 !important;
 }
 
 .ashby-application-form-container input[type="radio"] {
